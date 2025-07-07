@@ -18,8 +18,8 @@
     <body>
         <canvas id="canvas"></canvas>
         <script>
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
@@ -27,7 +27,7 @@
             let circles = [];
             let mouse = {
                 x: undefined,
-                y: undefined,
+                y: undefined
             };
             let isMouseDown = false;
             let isGameOver = false;
@@ -36,7 +36,7 @@
                 arrowUp: false,
                 arrowDown: false,
                 arrowLeft: false,
-                arrowRight: false,
+                arrowRight: false
             };
 
             // --- Particle Class ---
@@ -96,8 +96,8 @@
                     this.x = canvas.width / 2;
                     this.y = canvas.height / 2;
                     this.size = 20; // Corresponds to body/head size
-                    this.speed = 10;
-                    this.color = "white";
+                    this.speed = 4;
+                    this.color = 'white';
                     this.walkFrame = 0;
                     this.isMoving = false;
                 }
@@ -156,8 +156,7 @@
                     // Boundary checks
                     if (this.x > canvas.width - 15) this.x = canvas.width - 15;
                     if (this.x < 15) this.x = 15;
-                    if (this.y > canvas.height - 30)
-                        this.y = canvas.height - 30;
+                    if (this.y > canvas.height - 30) this.y = canvas.height - 30;
                     if (this.y < this.size + 10) this.y = this.size + 10;
                 }
             }
@@ -179,105 +178,103 @@
                 for (let i = 0; i < circles.length; i++) {
                     circles[i].update();
                     circles[i].draw();
-                    if (
-                        circles[i].size > circles[i].maxSize ||
-                        circles[i].opacity <= 0.05
-                    ) {
+                    if (circles[i].size > circles[i].maxSize || circles[i].opacity <= 0.05) {
                         circles.splice(i, 1);
                         i--;
                     }
                 }
             }
 
-            // --- Event Listeners ---
-            window.addEventListener("mousemove", (e) => {
-                mouse.x = e.x;
-                mouse.y = e.y;
-                if (!isMouseDown) {
-                    // Only draw trail when not clicking
-                    for (let i = 0; i < 2; i++) {
-                        particles.push(new Particle(mouse.x, mouse.y));
-                    }
-                }
-            });
-
-            window.addEventListener("mousedown", (e) => {
-                mouse.x = e.x;
-                mouse.y = e.y;
+            function handleMouseDown(x, y) {
+                mouse.x = x;
+                mouse.y = y;
 
                 if (isGameOver) {
-                    // Reset game
                     isGameOver = false;
                     stickman.x = canvas.width / 2;
                     stickman.y = canvas.height / 2;
                     particles = [];
                     circles = [];
-                    animate(); // Restart animation loop
+                    animate();
                     return;
                 }
 
-                // Check for click on stickman
                 const stickmanHitbox = {
                     left: stickman.x - 15,
                     right: stickman.x + 15,
-                    top: stickman.y - stickman.size - 10, // top of head
-                    bottom: stickman.y + 30, // bottom of feet
+                    top: stickman.y - stickman.size - 10,
+                    bottom: stickman.y + 30
                 };
 
-                if (
-                    mouse.x > stickmanHitbox.left &&
-                    mouse.x < stickmanHitbox.right &&
-                    mouse.y > stickmanHitbox.top &&
-                    mouse.y < stickmanHitbox.bottom
-                ) {
+                if (mouse.x > stickmanHitbox.left && mouse.x < stickmanHitbox.right &&
+                    mouse.y > stickmanHitbox.top && mouse.y < stickmanHitbox.bottom) {
                     isGameOver = true;
                 } else {
                     isMouseDown = true;
                 }
+            }
+
+            // --- Event Listeners ---
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
             });
 
-            window.addEventListener("mouseup", () => {
+            window.addEventListener('mousedown', (e) => {
+                handleMouseDown(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('mouseup', () => {
                 isMouseDown = false;
             });
 
-            window.addEventListener("keydown", (e) => {
-                if (e.key === "ArrowUp") keys.arrowUp = true;
-                if (e.key === "ArrowDown") keys.arrowDown = true;
-                if (e.key === "ArrowLeft") keys.arrowLeft = true;
-                if (e.key === "ArrowRight") keys.arrowRight = true;
+            window.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleMouseDown(touch.clientX, touch.clientY);
+            }, { passive: false });
+
+            window.addEventListener('touchend', () => {
+                isMouseDown = false;
             });
 
-            window.addEventListener("keyup", (e) => {
-                if (e.key === "ArrowUp") keys.arrowUp = false;
-                if (e.key === "ArrowDown") keys.arrowDown = false;
-                if (e.key === "ArrowLeft") keys.arrowLeft = false;
-                if (e.key === "ArrowRight") keys.arrowRight = false;
+            window.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                mouse.x = touch.clientX;
+                mouse.y = touch.clientY;
+            }, { passive: false });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') keys.arrowUp = true;
+                if (e.key === 'ArrowDown') keys.arrowDown = true;
+                if (e.key === 'ArrowLeft') keys.arrowLeft = true;
+                if (e.key === 'ArrowRight') keys.arrowRight = true;
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'ArrowUp') keys.arrowUp = false;
+                if (e.key === 'ArrowDown') keys.arrowDown = false;
+                if (e.key === 'ArrowLeft') keys.arrowLeft = false;
+                if (e.key === 'ArrowRight') keys.arrowRight = false;
             });
 
             function animate() {
                 if (isGameOver) {
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = "white";
-                    ctx.font = "bold 50px Arial";
-                    ctx.textAlign = "center";
-                    ctx.fillText(
-                        "GAME OVER",
-                        canvas.width / 2,
-                        canvas.height / 2
-                    );
-                    ctx.font = "20px Arial";
-                    ctx.fillText(
-                        "Click to Restart",
-                        canvas.width / 2,
-                        canvas.height / 2 + 40
-                    );
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 50px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+                    ctx.font = '20px Arial';
+                    ctx.fillText('Click to Restart', canvas.width / 2, canvas.height / 2 + 40);
                     return; // Stop the animation loop
                 }
 
-                ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+                
                 handleParticles();
                 handleCircles();
 
@@ -285,17 +282,20 @@
                 stickman.draw();
 
                 if (isMouseDown) {
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 2; i++) {
+                        particles.push(new Particle(mouse.x, mouse.y));
+                    }
+                    for (let i = 0; i < 3; i++) {
                         circles.push(new Circle(mouse.x, mouse.y));
                     }
                 }
-
+                
                 requestAnimationFrame(animate);
             }
 
             animate();
 
-            window.addEventListener("resize", () => {
+            window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 stickman.x = canvas.width / 2;
