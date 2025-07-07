@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Interactive Particles</title>
+        <title>Interactive Game</title>
         <style>
             body {
                 margin: 0;
@@ -214,10 +214,20 @@
                 }
             }
 
+            function createSparkles(x, y) {
+                for (let i = 0; i < 2; i++) {
+                    particles.push(new Particle(x, y));
+                }
+                for (let i = 0; i < 3; i++) {
+                    circles.push(new Circle(x, y));
+                }
+            }
+
             // --- Event Listeners ---
             window.addEventListener('mousemove', (e) => {
                 mouse.x = e.clientX;
                 mouse.y = e.clientY;
+                createSparkles(mouse.x, mouse.y);
             });
 
             window.addEventListener('mousedown', (e) => {
@@ -243,6 +253,7 @@
                 const touch = e.touches[0];
                 mouse.x = touch.clientX;
                 mouse.y = touch.clientY;
+                createSparkles(mouse.x, mouse.y);
             }, { passive: false });
 
             window.addEventListener('keydown', (e) => {
@@ -282,12 +293,7 @@
                 stickman.draw();
 
                 if (isMouseDown) {
-                    for (let i = 0; i < 2; i++) {
-                        particles.push(new Particle(mouse.x, mouse.y));
-                    }
-                    for (let i = 0; i < 3; i++) {
-                        circles.push(new Circle(mouse.x, mouse.y));
-                    }
+                    createSparkles(mouse.x, mouse.y);
                 }
                 
                 requestAnimationFrame(animate);
